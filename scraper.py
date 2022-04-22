@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import time
 import re
 
 
@@ -24,14 +25,19 @@ def parser(url):
 
     # render the url
     html = render(url)
+    time.sleep(2)
 
     # find race title
     title = html.find('div',id='tips-title').text.strip()
 
     # find race timestamp
-    date_row = html.find('span',class_='event-start-time')
-    timestamp = int(date_row['data-timestamp'])
-    date = datetime.fromtimestamp(timestamp)
+    try:
+        date_row = html.find('span',class_='event-start-time')
+        timestamp = int(date_row['data-timestamp'])
+        date = datetime.fromtimestamp(timestamp)
+        date = date.strftime('%H:%M:%S %d/%m/%Y')
+    except:
+        date = None
 
     # find table
     results = []
@@ -52,7 +58,7 @@ def parser(url):
             
             result = {
                 'Race': title,
-                'Date': date.strftime('%H:%M:%S %d/%m/%Y'),
+                'Date': date,
                 'Horse': horse_name,
                 'Win Tips': tips[0].text.strip(),
                 'EW Tips': tips[1].text.strip(),
