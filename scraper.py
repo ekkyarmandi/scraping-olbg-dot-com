@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-import time
 import re
 
 
@@ -25,7 +24,6 @@ def parser(url):
 
     # render the url
     html = render(url)
-    time.sleep(2)
 
     # find race title
     title = html.find('div',id='tips-title').text.strip()
@@ -40,31 +38,35 @@ def parser(url):
         date = None
 
     # find table
-    results = []
-    table = html.find('table',id='tipsListingContainer')
-    for tr in table.find_all('tr'):
-        if 'class' in tr.attrs and 'tip-row' in tr.attrs['class']:
+    try:
+        results = []
+        table = html.find('table',id='tipsListingContainer')
+        for tr in table.find_all('tr'):
+            if 'class' in tr.attrs and 'tip-row' in tr.attrs['class']:
 
-            # find horse name
-            horse_name = tr.find('h4',class_='selection-name').text
-            horse_name = " ".join(re.findall('[a-zA-Z]+',horse_name))
-            horse_name = re.sub('\s+',' ',horse_name).strip()
+                # find horse name
+                horse_name = tr.find('h4',class_='selection-name').text
+                horse_name = " ".join(re.findall('[a-zA-Z]+',horse_name))
+                horse_name = re.sub('\s+',' ',horse_name).strip()
 
-            # find WIN tips, EW tips, and find NAPs
-            tips = tr.find_all('p',class_='tips')
+                # find WIN tips, EW tips, and find NAPs
+                tips = tr.find_all('p',class_='tips')
 
-            # find Odds fractional
-            odds = tr.find('div',class_=['odds','formatted-odds'])
-            
-            result = {
-                'Race': title,
-                'Date': date,
-                'Horse': horse_name,
-                'Win Tips': tips[0].text.strip(),
-                'EW Tips': tips[1].text.strip(),
-                'NAPs': tips[2].text.strip(),
-                'Odds': odds['oddfractional']
-            }
+                # find Odds fractional
+                odds = tr.find('div',class_=['odds','formatted-odds'])
+                
+                result = {
+                    'Race': title,
+                    'Date': date,
+                    'Horse': horse_name,
+                    'Win Tips': tips[0].text.strip(),
+                    'EW Tips': tips[1].text.strip(),
+                    'NAPs': tips[2].text.strip(),
+                    'Odds': odds['oddfractional']
+                }
 
             results.append(result)
-    return results
+        return results
+
+    except:
+        return None

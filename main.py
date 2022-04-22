@@ -25,8 +25,9 @@ results = []
 links = list(dict.fromkeys(links))
 for link in links:
     result = scraper.parser(link)
-    results.extend(result)
-    print(result)
+    if result != None:
+        results.extend(result)
+        print(result)
 
 # export results as CSV
 data = DataFrame(results)
